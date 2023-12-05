@@ -1,21 +1,27 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'archlinux-ostree-encapsulate'
+description: 'Deploys a container to ostree and re-encapsulates it.'
+author: 'frap129'
 
 # Define your inputs here.
 inputs:
-  who-to-greet:
-    description: 'Your input description here'
+  image:
+    description: 'Valid image in a container registry'
     required: true
-    default: 'World'
+    default: 'ghcr.io/frap129/trellis:testing'
+  output-tar:
+    description: 'Name of output tarball'
+    required: false
+    default: 'encapsulated.tar'
 
 # Define your outputs here.
 outputs:
-  greeting:
-    description: 'Your output description here'
+  output-path:
+    description: 'Path of the output tarball'
 
 runs:
   using: docker
-  image: Dockerfile
+  image: Containerfile
+  working-directory: ${{ github.action_path }}
   env:
-    INPUT_WHO_TO_GREET: ${{ inputs.who-to-greet }}
+    IMAGE: ${{ inputs.image }}
+    OUTPUT_TAR: ${{ inputs.output-tar }}
