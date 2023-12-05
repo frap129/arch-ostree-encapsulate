@@ -1,31 +1,21 @@
 #!/bin/sh -l
 
-declare IMAGE=${IMAGE:="ghcr.io/frap129/trellis:latest"}
-declare OSTREE_SYS_ROOT=${OSTREE_SYS_ROOT:="/tmp/chroot"}
-declare OSTREE_SYS_TREE=${OSTREE_SYS_TREE:='/tmp/rootfs'}
-declare SYSTEM_BASE_NAME=${SYSTEM_BASE_NAME:="ostree-system"}
-declare OUTPUT_TAR=${OUTPUT_TAR:="encapsulated.tar"}
+export IMAGE=${IMAGE:="ghcr.io/frap129/trellis:latest"}
+export OSTREE_SYS_ROOT=${OSTREE_SYS_ROOT:="/tmp/chroot"}
+export OSTREE_SYS_TREE=${OSTREE_SYS_TREE:='/tmp/rootfs'}
+export SYSTEM_BASE_NAME=${SYSTEM_BASE_NAME:="ostree-system"}
+export OUTPUT_TAR=${OUTPUT_TAR:="encapsulated.tar"}
 
 ostree admin init-fs --sysroot="${OSTREE_SYS_ROOT}" --modern ${OSTREE_SYS_ROOT}
 ostree admin stateroot-init --sysroot="${OSTREE_SYS_ROOT}" ${SYSTEM_BASE_NAME}
 ostree init --repo="${OSTREE_SYS_ROOT}/ostree/repo" --mode='bare'
 ostree config --repo="${OSTREE_SYS_ROOT}/ostree/repo" set sysroot.bootprefix 'true'
 
-# Add support for overlay storage driver in LiveCD
-if [[ $(df --output=fstype / | tail -n 1) = 'overlay' ]]; then
-    ENV_CREATE_DEPS fuse-overlayfs
-    local TMPDIR='/tmp/podman'
-    local PODMAN_OPT_GLOBAL=(
-        --root="${TMPDIR}/storage"
-        --tmpdir="${TMPDIR}/tmp"
-    )
-fi
-
 # Ostreeify: retrieve rootfs (workaround: `podman build --output local` doesn't preserve ownership)
 rm -rf ${OSTREE_SYS_TREE}
 mkdir -p ${OSTREE_SYS_TREE}
 podman pull ${IMAGE}
-podman ${PODMAN_OPT_GLOBAL[@]} export ${IMAGE} | tar -xC ${OSTREE_SYS_TREE}
+podman export ${IMAGE} | tar -xC ${OSTREE_SYS_TREE}
 
 # Doing it here allows the container to be runnable/debuggable and Containerfile reusable
 mv ${OSTREE_SYS_TREE}/etc ${OSTREE_SYS_TREE}/usr/
