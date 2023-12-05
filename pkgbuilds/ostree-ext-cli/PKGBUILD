@@ -24,6 +24,6 @@ build() {
 
 package() {
 	cd ${srcdir}/ostree-rs-ext-ostree-ext-v${pkgver}/
-  install -Dm755 target/release/${pkgname} ${pkgdir}/usr/bin
+  install -Dm755 target/release/${pkgname} ${pkgdir}/usr/bin/${pkdname}
 }
 
