@@ -21,7 +21,6 @@ outputs:
 runs:
   using: docker
   image: Containerfile
-  working-directory: ${{ github.action_path }}
   env:
     IMAGE: ${{ inputs.image }}
     OUTPUT_TAR: ${{ inputs.output-tar }}
