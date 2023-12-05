@@ -47,10 +47,10 @@ jobs:
       - name: Run the Container
         id: run
         env:
-          INPUT_WHO_TO_GREET: Mona Lisa Octocat
+          IMAGE: archlinux:base
         run: |
           docker run \
-            --env INPUT_WHO_TO_GREET="${{ env.INPUT_WHO_TO_GREET }}" \
+            --env IMAGE="${{ env.IMAGE }}" \
             --rm ${{ env.TEST_TAG }}
 
   test-action:
@@ -66,8 +66,8 @@ jobs:
         id: test-action
         uses: ./
         with:
-          who-to-greet: Mona Lisa Octocat
+          output-path: encapsulated.tar
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.greeting }}"
+        run: echo "${{ steps.test-action.outputs.output-path }}"
